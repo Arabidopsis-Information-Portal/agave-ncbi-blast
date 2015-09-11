@@ -1,41 +1,45 @@
-# This is a generic wrapper script for running docker containers. 
-# All docker apps take one optional common parameter, `dockerImage`. This is the 
-# name of the container image that will be run. Additionally, any
-# other app-specific parameters may be specified. Notice that all we are
-# doing here is setting up local variables to receive the values passed 
-# in from the job
-
-DOCKER_IMAGE="ncbi-blast"
-
-# In addition to the common parameter, all docker apps take a single 
-# common input file, `dockerFile`, which is also optional. Either the 
-# dockerImage or the dockerFile should be specified in order to properly
-# run the container. In this example, we only use the dockerImage
-
-#DOCKER_FILE=${dockerFile}
-
-# Craft your Docker env here, adding volumes, constraints, etc
-# before getting into your app-specific logic
-DOCKER_COMMAND="docker run -i -t -v /home/vaughn/storage/databases/blast:/databases:ro -v `pwd`:/scratch:rw -w /scratch -e BLASTDB=/databases"
-
-# In the follow section, you would enter application specific input files.
-# As with native apps, the input files will be present in the job directory
-# when this script is run.
+source ./common.sh
 
 FILENAME="${query}"
 
-# Check for existence of input file.
-if [ -e $FILENAME ]; then
-	
-	# Build up the arguments string
-	# Start with common arguments that are mandatory or created via showArgument
-	DBS="${database}"
-	ARGS="${evalue} ${penalty} ${reward} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} -num_threads 2"
-	
-	# Not used by BLASTN so we don't insert them above
-	# matrix gencode 
+# Build up the arguments string
+#
+# Accept a custom FASTA file as database
+# in addition to any libraries selected
+# from the databases volume
+DATABASES="${database}"
+# Nucleotide database
+CUSTOM_NUC="${custom_nucl_db}"
+if [ -n "$CUSTOM_NUC" ];
+    makeblastdb -i ${CUSTOM_NT} -dbtype nucl -out custom_nuc -logfile makeblastdb_nucl.log
+    if [[ $? -eq 0 ]];
+        DATABASES="${DATABASES} custom_nuc"
+    else
+        echo "Warning: We were unable to format ${custom_nucl_db} as a custom database."
+    fi
+fi
+# Protein database
+CUSTOM_PRO="${custom_prot_db}"
+if [ -n "$CUSTOM_PRO" ];
+    makeblastdb -i ${CUSTOM_PRO} -dbtype prot -out custom_pro -logfile makeblastdb_prot.log
+    if [[ $? -eq 0 ]];
+        DATABASES="${DATABASES} custom_pro"
+    else
+        echo "Warning: We were unable to format ${custom_prot_db} as a custom database."
+    fi
+fi
 
-# Add arguments programmatically	
+# Trim leading and trailing comma
+DATABASES=${DATABASES%,}
+DATABASES=${DATABASES#,}
+
+
+ARGS="${evalue} ${penalty} ${reward} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} -num_threads 2"
+
+# Not used by BLASTN so we don't insert them above
+# matrix gencode
+
+# Add arguments programmatically
 # Unify -html and -outfmt format modes
 case ${format} in
 	HTML)
@@ -56,15 +60,12 @@ case ${format} in
 	ASN1)
 		ARGS="$ARGS -outfmt 11"
 		;;
-esac		
+esac
 
-	# Run in Docker as follows
-	# Mount pwd as /scratch then use scratch as working directory
-	# Use base image DOCKER_IMAGE
-	# Use bash as the parent shell rather than sh
-	# ^ Might be able to set this using entrypoint instead
-	${DOCKER_COMMAND} ${DOCKER_IMAGE} blastn -db "${DBS}" ${ARGS} -query $FILENAME -out blastn_out
+# Run in Docker as follows
+# Mount pwd as /scratch then use scratch as working directory
+# Use bash as the parent shell rather than sh
+# ${DOCKER_APP_RUN} blastn -db "${DATABASES}" ${ARGS} -query $FILENAME -out blastn_out
 
 	#sudo docker rmi $DOCKER_IMAGE
-fi
 
