@@ -45,15 +45,54 @@
                "fasta-0", "text-0", "raw-0"
             ]
          }
+      },
+      {
+         "id":"customDatabase",
+         "value": {
+         	"default":"",
+            "type":"string",
+            "validator":"",
+            "visible":true,
+            "required":false
+         },
+         "details":{
+            "label":"Optional custom BLAST database (Fasta-formatted)",
+            "description":"Contains one or more sequences in FASTA format to be used as a custom BLAST database for the query"
+         },
+         "semantics":{
+           "ontology":[
+               "http://sswapmeet.sswap.info/mime/application/X-fasta"
+            ],
+            "fileTypes":[
+               "fasta-0", "text-0", "raw-0"
+            ]
+         }
       }
    ],
    "parameters":[
      {
-         "id":"application",
+         "id":"blast_application",
          "value":{
             "defaultValue":"blastn",
+            "enum_values": [
+                {
+                    "blastn": "BLASTN: Search database Nucleotide collection (nr/nt) using Megablast (Optimize for highly similar sequences) "
+                },
+                {
+                    "blastp": "BLASTP: Search database Non-redundant protein sequences (nr) using Blastp (protein-protein BLAST)"
+                },
+                {
+                    "blastx": "BLASTX: Search database Non-redundant protein sequences (nr) using Blastx (search protein databases using a translated nucleotide query) "
+                },
+                {
+                    "tblastn": "TBLASTN: Search database Nucleotide collection (nr/nt) using Tblastn (search translated nucleotide databases using a protein query) "
+                },
+                {
+                    "tblastx": "TBLASTX: Search database Nucleotide collection (nr/nt) using Tblastx (Search translated nucleotide databases using a translated nucleotide query)"
+                }
+            ],
             "label": "BLAST+ application",
-            "type":"string",
+            "type": "enumeration",
             "visible":true,
             "required":true
      },{

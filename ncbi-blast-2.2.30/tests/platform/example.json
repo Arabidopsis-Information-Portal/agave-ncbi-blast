@@ -1,0 +1,13 @@
+{
+  "name": "",
+  "appId": "ncbi-blastn-2.2.29u5",
+  "archive": true,
+  "inputs": {
+    "query": [ 
+      "agave://araport-storage-00/public_files/fwa.nt.fa"
+    ]
+  },
+  "parameter": {
+    "database": "91eUYI4",
+  }
+}

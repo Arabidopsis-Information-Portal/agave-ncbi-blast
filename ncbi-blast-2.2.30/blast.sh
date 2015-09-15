@@ -10,6 +10,10 @@ DOCKER_DATA_IMAGE='araport/agave-ncbi-blastdb:tair10'
 HOST_SCRATCH='/home'
 # In theory, these values can be set in the Agave application's metadata
 # then set to invisible so they can't be re-set by end user
+# How many concurrent threads to run BLAST*
+#
+# Discover this from the host and run at max
+_THREADS=$(cat /proc/cpuinfo | grep processor | wc -l)
 
 # YOU MUST INCLUDE THIS LINE AFTER DEFINING
 # THE PREVIOUS VARIABLES ^^
@@ -33,6 +37,8 @@ CUSTOMDB="${customDatabase}"
 
 do_makeblastdb () {
 
+    # Build a local BLAST database if values were passed
+    # Log an error if the user sent in the wrong format
    local dbfile=$1
    local dbtype=$2
    if [ -n "${dbfile}" ];
@@ -49,13 +55,33 @@ do_makeblastdb () {
 
 # Custom argument string and makeblastdb behavior for each type of BLAST
 DATABASES="${database}"
-ARGS="-num_threads 2"
-case "${APPLICATION}" in
+ARGS="-num_threads ${_THREADS}"
+# This is new. Set up the ARG and custom database creation up based on the preferred application
+case "${blast_application}" in
     blastn)
         do_makeblastdb ${CUSTOMDB} nucl
         # Not used by blastn: matrix gencode
-        ARGS="${ARGS} ${evalue} ${penalty} ${reward} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend}"
+        ARGS="${evalue} ${penalty} ${reward} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend}"
         ;;
+    blastp)
+        do_makeblastdb ${CUSTOMDB} prot
+        # Not used by blastp: penalty reward gencode
+        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} ${matrix}"
+        ;;
+    blastx)
+        do_makeblastdb ${CUSTOMDB} nucl
+        # Not used by blastx: penalty reward
+        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} ${matrix}"
+        ;;
+    tblastn)
+        do_makeblastdb ${CUSTOMDB} nucl
+        # Not used by tblastn: gencode reward penalty
+        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} ${matrix}"
+        ;;
+    tblastx)
+        do_makeblastdb ${CUSTOMDB} prot
+        # Not used by tblastx: gencode penalty reward gapopen gapextend
+        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${matrix}"
 esac
 
 # General case arguments
@@ -80,6 +106,9 @@ case ${format} in
 		ARGS="$ARGS -outfmt 11"
 		;;
 esac
+
+# Remove duplicate spaces in ARGS in order to pass a clean command to the Docker container
+ARGS=$(echo $ARGS | sed -e's/  */ /g')
 
 # Run the command in Docker app container
 ${DOCKER_APP_RUN} ${APPLICATION} -db "${DATABASES}" ${ARGS} -query ${QUERYFILE} -out ${APPLICATION}_out
