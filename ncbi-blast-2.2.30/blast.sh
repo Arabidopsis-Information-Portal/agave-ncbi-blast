@@ -41,7 +41,7 @@ do_makeblastdb () {
     # Log an error if the user sent in the wrong format
    local dbfile=$1
    local dbtype=$2
-   if [ -n "${dbfile}" ];
+   if [ -n "${dbfile}" ] && [ -n "${dbtype}" ];
        then
        ${DOCKER_APP_RUN} makeblastdb -in "${dbfile}" -dbtype "${dbtype}" -out "custom_db" -logfile "makeblastdb-${dbfile}-${dbtype}.log"
        if [[ ! $? -eq 0 ]];
@@ -111,12 +111,13 @@ esac
 ARGS=$(echo $ARGS | sed -e's/  */ /g')
 
 # Run the command in Docker app container
-${DOCKER_APP_RUN} ${APPLICATION} -db "${DATABASES}" ${ARGS} -query ${QUERYFILE} -out ${APPLICATION}_out
+OUTFILE="${blast_application}_out"
+${DOCKER_APP_RUN} ${blast_application} ${ARGS} -query ${QUERYFILE} -db "${DATABASES}" -out ${OUTFILE}
 
 # Here is where we can insert additional commands to run either in local environment
 # or the app container for additional post-processing
 
 ## -> NO USER-SERVICABLE PARTS INSIDE
-docker rm -f ${DOCKER_DATA_CONTAINER}
-docker rm -f ${DOCKER_APP_CONTAINER}
+docker rm -f ${DOCKER_DATA_CONTAINER} &
+docker rm -f ${DOCKER_APP_CONTAINER} &
 ## <- NO USER-SERVICABLE PARTS INSIDE

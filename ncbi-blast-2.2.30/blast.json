@@ -14,7 +14,7 @@
    "executionSystem":"araport-compute-00",
    "executionType":"CLI",
    "templatePath":"blast.sh",
-   "testPath":"test.sh",
+   "testPath":"tests/test-local.sh",
    "checkpointable":false,
    "modules":[],
    "tags":[
@@ -94,9 +94,9 @@
             "label": "BLAST+ application",
             "type": "enumeration",
             "visible":true,
-            "required":true
-     },{
-         "id":"database",
+            "required":true }
+     },
+     {"id":"database",
          "value":{
             "defaultValue":"TAIR10_cdna_20101214_updated",
             "type":"string",
@@ -376,8 +376,8 @@
          "description":"BLAST alignment file"},
      "semantics":
         {"ontology":["http://sswapmeet.sswap.info/mime/text/_"],
-         "minCardinality":"1",
-         "maxCardinality":"1",
+         "minCardinality":1,
+         "maxCardinality":1,
          "fileType":"Text-0"}}
 ]
 }

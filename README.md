@@ -57,6 +57,7 @@ Start any work on the Araport BLAST app by checking out this repository. Make su
 1. Docker 1.7 or better
 2. The Araport CLI (or, you can use the Docker container. We'll give parallel instructions)
 3. Python 2.7.x, preferable with virtualenv and pip
+4. The jq JSON parser
 
 ### Updating to a new BLAST release
 
@@ -86,17 +87,18 @@ Your BLAST web service will not yet take advantage of this new image, but now it
 
 ### Updating the wrapper script template
 
-After updating the Docker Hub image, you must update the wrapper script template ({{ncbi-blast/blast.sh}}) to make it aware of the new asset.
+After updating the Docker Hub image, you must update the wrapper script template ({{ncbi-blast=V.v.v/blast.sh}}) to make it aware of the new asset.
 
-1. Update the DOCKER_APP_IMAGE value to point to the new image:tag
-2. If there are any changes to the way BLAST is invoked (new parameters, etc.) make sure to edit those into the wrapper script as well.
-3. Change the version numer of the *ncbi-blast-V.v.v* directory if the version was updated (as above)
+
+1. Change the version numer of the *ncbi-blast-V.v.v* directory if the version was updated (as above)
+2. Update the DOCKER_APP_IMAGE value to point to the new image:tag
+3. If there are any changes to the way BLAST is invoked (new parameters, etc.) edit those into the wrapper script as well.
 4. Upload the *ncbi-blast-V.v.v* directory to an Agave storageSystem
 
 In the case where we've updated the BLAST software version:
 
 ```
-files-upload -r -F *ncbi-blast-2.2.31* $ARAPORT_USERNAME/applications
+files-upload -F *ncbi-blast-2.2.31* $ARAPORT_USERNAME/apps
 ```
 
 You may also wish to *only* revise the wrapper template to fix issues or add additional functionality. In this case, you will stay in the same git branch, not rename the *ncbi-blast-V.v.v folder*, and will simply re-upload the directory to the storageSystem, where its contents will over-write the previous contents.
@@ -105,5 +107,17 @@ You may also wish to *only* revise the wrapper template to fix issues or add add
 
 ### Creating or updating application metadata in the Agave apps service
 
+1. If you've updated the version number for the binary application, you will need to update the *version* field in the application JSON file (*ncbi-blast-2.2.31/blast.json*). You will also need to update the *deploymentPath* to point to the directory containing the new assets. In the case of our hypothetical update to blast+ 2.2.31, *version* is *2.2.31* and *deploymentPath* needs to end with *ncbi-blast-2.2.31*
+2. If you've made any changes to the inputs or parameter names in the wrapper script, these will need to be changed in the application JSON description.
+3. Update these application JSON file in the Agave storage system (for consistency if they are downloaded by other people). You can either re-upload the entire asset directory or specifically update the file as follows:
 
+```
+files-upload -F *ncbi-blast-2.2.31/blast.json* $ARAPORT_USERNAME/apps/ncbi-blast-2.2.31
+```
+
+4. Now, update the application service with the new JSON file as follows:
+
+```
+apps-addupdate -F *ncbi-blast-2.2.31/blast.json*
+```
 

@@ -9,11 +9,7 @@
     "archive": false,
     "archivePath": "%USERNAME/archive/jobs/blastn-test-%DATESTAMP",
     "archiveSystem": "araport-storage-00",
-    "notifications": [{
-         "url":"%EMAIL",
-         "event":"FINISHED",
-         "persistent":false
-      }],
+    "notifications": [],
     "parameters" : {
     	"blast_application": "blastn",
     	"database": "TAIR10_cdna_20101214_updated TAIR10_cds_20101214_updated",

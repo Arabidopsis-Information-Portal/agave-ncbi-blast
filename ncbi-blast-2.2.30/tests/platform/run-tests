@@ -73,5 +73,5 @@ set +e
 
 rm -rf *.bak
 
-echo -e "\nHere is a listing of your jobs:\n"
-jobs-list
+echo -e "\nHere is a listing of your ten most recent jobs:\n"
+jobs-list -l 10
