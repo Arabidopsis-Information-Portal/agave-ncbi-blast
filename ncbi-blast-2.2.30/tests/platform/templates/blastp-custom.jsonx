@@ -1,5 +1,5 @@
 {
-    "name": "blastp-test-%DATESTAMP",
+    "name": "blastp--custom-test-%DATESTAMP",
     "appId": "ncbi-blast-2.2.30",
     "queue": "normal",
     "nodeCount": 1,

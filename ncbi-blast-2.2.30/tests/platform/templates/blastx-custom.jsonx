@@ -1,5 +1,5 @@
 {
-    "name": "blastx-test-%DATESTAMP",
+    "name": "blastx--custom-test-%DATESTAMP",
     "appId": "ncbi-blast-2.2.30",
     "queue": "normal",
     "nodeCount": 1,
@@ -17,6 +17,7 @@
     	"format":"HTML",
     	"ungapped":false,
     	"matrix":"BLOSUM62",
+    	"filter":true,
     	"lowercase_masking":false
     },
     "inputs": {

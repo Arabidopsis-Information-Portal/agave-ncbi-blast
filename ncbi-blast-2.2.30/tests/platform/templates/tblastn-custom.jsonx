@@ -1,5 +1,5 @@
 {
-    "name": "tblastn-test-%DATESTAMP",
+    "name": "tblastn--custom-test-%DATESTAMP",
     "appId": "ncbi-blast-2.2.30",
     "queue": "normal",
     "nodeCount": 1,
