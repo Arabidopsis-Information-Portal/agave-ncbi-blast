@@ -3,9 +3,10 @@
 # data container
 
 DOCKER_APP_IMAGE='araport/agave-ncbi-blast:2.2.30'
-# Feel free to append a specific versioned tag to the data image, but be warned that will
-# restrict the set of queriable public datasets to JUST that release
-DOCKER_DATA_IMAGE='araport/agave-ncbi-blastdb:tair10'
+# You may append a specific versioned tag to the data image, but be warned that will
+# restrict the set of queriable public datasets to JUST that release unless
+# the tag is 'latest'
+DOCKER_DATA_IMAGE='araport/agave-ncbi-blastdb:latest'
 # Only change if you need to and know what you're doing
 HOST_SCRATCH='/home'
 # In theory, these values can be set in the Agave application's metadata
@@ -56,32 +57,38 @@ do_makeblastdb () {
 # Custom argument string and makeblastdb behavior for each type of BLAST
 DATABASES="${database}"
 ARGS="-num_threads ${_THREADS}"
+filter_flag=""
 # This is new. Set up the ARG and custom database creation up based on the preferred application
 case "${blast_application}" in
     blastn)
         do_makeblastdb ${CUSTOMDB} nucl
         # Not used by blastn: matrix gencode
-        ARGS="${evalue} ${penalty} ${reward} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend}"
+        if [ "${filter}" -eq 0 ];then filter_flag="-dust no";fi
+        ARGS="${evalue} ${penalty} ${reward} ${ungapped} ${max_target_seqs} ${filter_flag} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend}"
         ;;
     blastp)
         do_makeblastdb ${CUSTOMDB} prot
         # Not used by blastp: penalty reward gencode
-        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} ${matrix}"
+        if [ "${filter}" -eq 0 ];then filter_flag="-seg no";fi
+        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter_flag} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} ${matrix}"
         ;;
     blastx)
-        do_makeblastdb ${CUSTOMDB} nucl
+        do_makeblastdb ${CUSTOMDB} prot
         # Not used by blastx: penalty reward
-        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} ${matrix}"
+        if [ "${filter}" -eq 0 ];then filter_flag="-seg no";fi
+        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter_flag} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} ${matrix}"
         ;;
     tblastn)
         do_makeblastdb ${CUSTOMDB} nucl
         # Not used by tblastn: gencode reward penalty
-        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} ${matrix}"
+        if [ "${filter}" -eq 0 ];then filter_flag="-seg no";fi
+        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter_flag} ${lowercase_masking} ${wordsize} ${gapopen} ${gapextend} ${matrix}"
         ;;
     tblastx)
-        do_makeblastdb ${CUSTOMDB} prot
+        do_makeblastdb ${CUSTOMDB} nucl
         # Not used by tblastx: gencode penalty reward gapopen gapextend
-        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter} ${lowercase_masking} ${wordsize} ${matrix}"
+        if [ "${filter}" -eq 0 ];then filter_flag="-seg no";fi
+        ARGS="${ARGS} ${evalue} ${ungapped} ${max_target_seqs} ${filter_flag} ${lowercase_masking} ${wordsize} ${matrix}"
 esac
 
 # General case arguments

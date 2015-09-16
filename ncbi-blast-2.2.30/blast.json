@@ -328,16 +328,16 @@
          "id":"filter",
          "value":{
             "default":true,
-            "type":"flag",
+            "type":"bool",
             "validator":"",
-            "visible":true,
+            "visible":false,
             "required":false
          },
          "details":{
             "label":"Filter query sequence(s)",
             "description":"Filtering masks off segments of the query sequence that have low compositional complexity. DUST for blastn, SEG for others.",
-            "argument":"-dust yes ",
-            "showArgument":true
+            "argument":"",
+            "showArgument":false
          },
          "semantics":{
             "ontology":[
