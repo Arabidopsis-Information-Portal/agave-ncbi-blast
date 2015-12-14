@@ -7,6 +7,7 @@ DOCKER_APP_IMAGE='araport/agave-ncbi-blast:2.2.30'
 # restrict the set of queriable public datasets to JUST that release unless
 # the tag is 'latest'
 DOCKER_DATA_IMAGE='araport/agave-ncbi-blastdb:latest'
+DOCKER_DATA_VOLUME='/opt/databases'
 # Only change if you need to and know what you're doing
 HOST_SCRATCH='/home'
 # In theory, these values can be set in the Agave application's metadata
@@ -123,6 +124,7 @@ ${DOCKER_APP_RUN} ${blast_application} ${ARGS} -query ${QUERYFILE} -db "${DATABA
 
 # Here is where we can insert additional commands to run either in local environment
 # or the app container for additional post-processing
+rm -rf tests *.sh *.json
 
 ## -> NO USER-SERVICABLE PARTS INSIDE
 docker rm -f ${DOCKER_DATA_CONTAINER} &

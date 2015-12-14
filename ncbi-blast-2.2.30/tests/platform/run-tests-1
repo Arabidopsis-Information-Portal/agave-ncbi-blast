@@ -1,0 +1,54 @@
+#!/bin/bash
+
+darwin=false;
+case "`uname`" in
+  Darwin*) darwin=true ;;
+esac
+
+if $darwin; then
+  sedi="sed -i .bak"
+else
+  sedi="sed -i"
+fi
+
+echo -e "\nWe will test auth, data, and job life cycle for the AIP tenant:\n"
+echo -e "Before running this script, please install the Agave CLI"
+echo -e "and make it available in your PATH. Then, select the AIP tenant.\n"
+echo -e "tenants-init --tenant araport.org --backup\n"
+
+echo -e "\nPlease answer the following questions:\n"
+
+default=""
+read -p "What AIP user account will are you testing [$default]? " USERNAME
+USERNAME=${USERNAME:-$default}
+echo "OK: AIP user account is $USERNAME"
+
+default="null@devnull.com"
+read -p "Email address for notifications [$default]: " EMAIL
+EMAIL=${EMAIL:-$default}
+echo "OK: Notifications to $EMAIL"
+
+# Create a date stamp to ensure the system name is fairly unique
+DATESTAMP=$(date +%m%d%Y-%k%M)
+DATEFILTER=$(date +%Y-%m-%d)
+
+echo -e "\nCreating and submitting jobs..."
+
+for F in templates/*jsonx
+do
+BN=$(basename $F .jsonx)
+cp $F "$BN.json" && chmod 600 $BN.json
+# Find/replace on macros
+$sedi "s/%USERNAME/$USERNAME/g" $BN.json
+$sedi "s/%EMAIL/$EMAIL/g" $BN.json
+$sedi "s/%DATESTAMP/$DATESTAMP/g" $BN.json
+echo -e "\tJob $BN"
+jobs-submit -q -F "$BN.json"
+sleep 2
+done
+set +e
+
+rm -rf *.bak
+
+echo -e "\nHere is a listing of your ten most recent jobs:\n"
+jobs-list -l 10

@@ -15,8 +15,7 @@
     	"database": "TAIR10_cdna_20101214_updated TAIR10_cds_20101214_updated",
     	"evalue": 0.001,
     	"format":"HTML",
-    	"matrix":"BLOSUM62",
-    	"filter":true
+    	"matrix":"BLOSUM62"
     },
     "inputs": {
 		"query": "agave://araport-storage-00/public_files/test.nt.fa"

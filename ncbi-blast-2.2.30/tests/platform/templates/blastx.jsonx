@@ -17,8 +17,7 @@
     	"format":"HTML",
     	"ungapped":false,
     	"matrix":"BLOSUM62",
-    	"lowercase_masking":false,
-        "filter":true
+    	"lowercase_masking":false
     },
     "inputs": {
 		"query": "agave://araport-storage-00/public_files/test.nt.fa"

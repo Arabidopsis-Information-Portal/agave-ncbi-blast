@@ -17,7 +17,6 @@
     	"format":"HTML",
     	"ungapped":false,
     	"matrix":"BLOSUM62",
-    	"filter":true,
     	"lowercase_masking":false
     },
     "inputs": {

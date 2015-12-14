@@ -330,7 +330,7 @@
             "default":true,
             "type":"bool",
             "validator":"",
-            "visible":false,
+            "visible":true,
             "required":false
          },
          "details":{
