@@ -6,7 +6,7 @@ DOCKER_APP_IMAGE='araport/agave-ncbi-blast:2.2.30'
 # You may append a specific versioned tag to the data image, but be warned that will
 # restrict the set of queriable public datasets to JUST that release unless
 # the tag is 'latest'
-DOCKER_DATA_IMAGE='araport/agave-ncbi-blastdb:latest'
+DOCKER_DATA_IMAGE='araport/agave-ncbi-blastdb-vol:latest'
 DOCKER_DATA_VOLUME='/opt/databases'
 # Only change if you need to and know what you're doing
 HOST_SCRATCH='/home'
